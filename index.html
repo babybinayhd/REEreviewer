@@ -7,41 +7,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(to bottom, #BDDDFC, #88BDF2);
+            background: linear-gradient(to bottom, #18122B, #393053);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(68, 60, 104, 0.9); /* #443C68 with opacity */
             border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            max-width: 700px;
             width: 100%;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
         .btn {
-            background: linear-gradient(to right, #384959, #384959);
-            color: white;
-            padding: 0.75rem 1.5rem;
+            background: linear-gradient(to right, #635985, #635985);
+            color: #E0E0E0;
+            padding: 0.5rem 1rem; /* Reduced padding for smaller buttons */
+            font-size: 0.875rem; /* Smaller font size (equivalent to text-sm) */
             border-radius: 0.5rem;
             transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
         }
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background: #6A89A7;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: #443C68;
         }
         .option-btn {
-            background: #F5F7FA;
-            padding: 0.5rem;
+            background: #393053;
+            color: #E0E0E0;
+            padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
         }
         .option-btn:hover {
-            background: #6A89A7;
-            color: white;
+            background: #635985;
+            color: #E0E0E0;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         .correct {
             background: #22c55e !important; /* Green for correct */
@@ -51,11 +61,26 @@
             background: #ef4444 !important; /* Red for incorrect */
             color: white;
         }
-        h1, h2 {
-            color: #384959;
+        h1, h2, p {
+            color: #E0E0E0;
         }
-        p {
-            color: #384959;
+        #feedback {
+            color: #E0E0E0;
+        }
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+        }
+        #question-container {
+            padding: 2rem;
+        }
+        #options {
+            margin-top: 1.5rem;
+        }
+        .action-buttons {
+            margin-top: 2rem;
         }
     </style>
 </head>
@@ -80,12 +105,13 @@
         <!-- Quiz Screen -->
         <div id="quiz-screen" class="card hidden">
             <h2 id="subject-title" class="text-2xl font-bold mb-4"></h2>
-            <div id="question-container" class="p-6">
+            <div id="question-container">
+                <img id="question-image" class="question-image hidden" src="" alt="Question Illustration">
                 <p id="question-text" class="text-lg mb-4"></p>
                 <div id="options" class="space-y-2"></div>
             </div>
             <div id="feedback" class="mt-4"></div>
-            <div class="mt-4 flex justify-between">
+            <div class="action-buttons flex justify-between">
                 <button onclick="backToSubjects()" class="btn">Back to Subjects</button>
                 <button onclick="nextQuestion()" class="btn">Next Question</button>
             </div>
@@ -97,31 +123,69 @@
             <p class="text-lg mb-6">"The secret of getting ahead is getting started." - Mark Twain</p>
             <button onclick="backToSubjects()" class="btn">Back to Subjects</button>
         </div>
+
+        <!-- Audio for Incorrect Answer -->
+        <audio id="incorrect-sound" src="incorrect.mp3"></audio>
     </div>
 
     <script>
         const data = {
             'Objective-type': {
                 'Mathematics': [
-                    { question: 'What is 2 + 2?', options: ['3', '4', '5', '6'], answer: '4' },
-                    { question: 'What is the square root of 16?', options: ['2', '4', '8', '16'], answer: '4' }
+                    { 
+                        question: 'What is 2 + 2?', 
+                        options: ['3', '4', '5', '6'], 
+                        answer: '4',
+                        image: 'images/math1.jpg'
+                    },
+                    { 
+                        question: 'What is the square root of 16?', 
+                        options: ['2', '4', '8', '16'], 
+                        answer: '4' 
+                    },
+                    { 
+                        question: 'What is the derivative of x^2?', 
+                        options: ['2x', 'x^2', '2', 'x'], 
+                        answer: '2x',
+                        image: 'images/derivative_graph.jpg'
+                    }
                 ],
                 'Engineering Sciences and Allied Subjects': [
-                    { question: 'What is the primary source of energy for Earth?', options: ['Sun', 'Moon', 'Wind', 'Water'], answer: 'Sun' }
+                    { 
+                        question: 'What is the primary source of energy for Earth?', 
+                        options: ['Sun', 'Moon', 'Wind', 'Water'], 
+                        answer: 'Sun' 
+                    }
                 ],
                 'Electrical Engineering Professional Subjects': [
-                    { question: 'What does Ohm’s Law state?', options: ['V=IR', 'P=VI', 'I=VR', 'R=VI'], answer: 'V=IR' }
+                    { 
+                        question: 'What does Ohm’s Law state?', 
+                        options: ['V=IR', 'P=VI', 'I=VR', 'R=VI'], 
+                        answer: 'V=IR' 
+                    }
                 ]
             },
             'Problem Solving': {
                 'Mathematics': [
-                    { question: 'Solve: 3x + 5 = 14', options: ['x=3', 'x=4', 'x=5', 'x=6'], answer: 'x=3' }
+                    { 
+                        question: 'Solve: 3x + 5 = 14', 
+                        options: ['x=3', 'x=4', 'x=5', 'x=6'], 
+                        answer: 'x=3' 
+                    }
                 ],
                 'Engineering Sciences and Allied Subjects': [
-                    { question: 'Calculate the force: F = ma, m=2kg, a=3m/s²', options: ['6N', '5N', '4N', '8N'], answer: '6N' }
+                    { 
+                        question: 'Calculate the force: F = ma, m=2kg, a=3m/s²', 
+                        options: ['6N', '5N', '4N', '8N'], 
+                        answer: '6N' 
+                    }
                 ],
                 'Electrical Engineering Professional Subjects': [
-                    { question: 'Calculate power: P = VI, V=12V, I=2A', options: ['24W', '22W', '20W', '26W'], answer: '24W' }
+                    { 
+                        question: 'Calculate power: P = VI, V=12V, I=2A', 
+                        options: ['24W', '22W', '20W', '26W'], 
+                        answer: '24W' 
+                    }
                 ]
             }
         };
@@ -190,6 +254,15 @@
                 button.onclick = () => checkAnswer(option, button);
                 optionsDiv.appendChild(button);
             });
+            // Handle image display
+            const questionImage = document.getElementById('question-image');
+            if (question.image) {
+                questionImage.src = question.image;
+                questionImage.classList.remove('hidden');
+            } else {
+                questionImage.classList.add('hidden');
+                questionImage.src = '';
+            }
             document.getElementById('feedback').textContent = '';
         }
 
@@ -200,6 +273,7 @@
             buttons.forEach(btn => {
                 btn.classList.remove('correct', 'incorrect');
                 btn.classList.add('option-btn');
+                btn.disabled = true;
             });
             if (selected === question.answer) {
                 button.classList.add('correct');
@@ -210,6 +284,10 @@
                 feedback.textContent = `Incorrect. The correct answer is ${question.answer}.`;
                 feedback.className = 'mt-4 text-red-600 font-semibold';
                 incorrectQuestions.push(question);
+                const incorrectSound = document.getElementById('incorrect-sound');
+                incorrectSound.play().catch(error => {
+                    console.error('Error playing sound:', error);
+                });
             }
         }
 
