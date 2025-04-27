@@ -277,11 +277,11 @@
             });
             if (selected === question.answer) {
                 button.classList.add('correct');
-                feedback.textContent = 'Correct!';
+                feedback.textContent = 'Correct! May tama ka!';
                 feedback.className = 'mt-4 text-green-600 font-semibold';
             } else {
                 button.classList.add('incorrect');
-                feedback.textContent = `Incorrect. The correct answer is ${question.answer}.`;
+                feedback.textContent = `Incorrect! Balikan mo 'to, okay?`;
                 feedback.className = 'mt-4 text-red-600 font-semibold';
                 incorrectQuestions.push(question);
                 const incorrectSound = document.getElementById('incorrect-sound');
